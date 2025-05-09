@@ -1,0 +1,12 @@
+:root {
+    --primary: #4a6fa5; /* أزرق */
+    --primary-light: #6d8fc7;
+    --secondary: #3a7ca5; /* أزرق غامق */
+    --secondary-light: #5d9cc7;
+    --reset: #6c757d;
+    --reset-light: #8e9ba7;
+    --background: linear-gradient(135deg, #f0f5ff 0%, #d6e4ff 100%);
+    --panel-bg: rgba(255, 255, 255, 0.9);
+}
+
+/* يمكن إضافة المزيد من التخصيصات للذكور هنا */

@@ -1,0 +1,10 @@
+:root {
+    --primary: #d45d79; /* وردي */
+    --primary-light: #e88fa5;
+    --secondary: #b74a6b; /* وردي غامق */
+    --secondary-light: #d97a95;
+    --reset: #a56d7a;
+    --reset-light: #c58e9b;
+    --background: linear-gradient(135deg, #fff0f5 0%, #ffd6e4 100%);
+    --panel-bg: rgba(255, 255, 255, 0.9);
+}

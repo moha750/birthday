@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر الصور للذكور</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="male-style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 محرر الصور للذكور</h1>
+        
+        <div class="editor">
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="panel">
+                    <h3>⚙️ تحكم في الصورة</h3>
+                    <label for="hue">درجة اللون (Hue)</label>
+                    <input type="range" id="hue" min="0" max="360" value="0">
+                    <div class="slider-value" id="hue-value">0°</div>
+                    
+                    <label for="saturation">التشبع (Saturation)</label>
+                    <input type="range" id="saturation" min="0" max="200" value="100">
+                    <div class="slider-value" id="saturation-value">100%</div>
+                </div>
+                
+                <div class="panel">
+                    <h3>✏️ تحكم في النص العلوي</h3>
+                    <label for="text-input">النص العلوي</label>
+                    <input type="text" id="text-input" placeholder="اكتب النص الذي تريد إضافته هنا">
+                    
+                    <label for="text-size">حجم النص</label>
+                    <input type="range" id="text-size" min="20" max="150" value="88">
+                    <div class="slider-value" id="text-size-value">88px</div>
+                    
+                    <div class="text-controls">
+                        <button id="clear-texts" class="secondary-btn">🗑️ مسح النص</button>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="download" class="primary-btn">💾 حفظ الصورة</button>
+                    <button id="reset-all" class="reset-btn">🔄 إعادة تعيين</button>
+                    <button id="back-btn" class="secondary-btn">↩ العودة</button>                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
