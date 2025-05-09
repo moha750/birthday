@@ -1,151 +1,195 @@
 // العناصر الأساسية
-const canvas = new fabric.Canvas('canvas', {
-    backgroundColor: '#f0f0f0',
-    preserveObjectStacking: true
-  });
-  
-  // إعدادات لكل جنس
-  const GENDER_SETTINGS = {
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const image = new Image();
+
+// إعدادات لكل جنس
+const GENDER_SETTINGS = {
     male: {
-      textColor: '#4e74aa',
-      dateColor: '#4e74aa',
-      image: 'images/male-bg.png'
+        textColor: '#4e74aa',
+        dateColor: '#4e74aa',
+        image: 'images/male-bg.png'
     },
     female: {
-      textColor: '#b82d6a',
-      dateColor: '#b82d6a',
-      image: 'images/female-bg.png'
+        textColor: '#b82d6a',
+        dateColor: '#b82d6a',
+        image: 'images/female-bg.png'
     }
-  };
-  
-  const currentGender = window.location.pathname.includes('female.html') ? 'female' : 'male';
-  const settings = GENDER_SETTINGS[currentGender];
-  
-  // بيانات التطبيق
-  let topTextObj = null;
-  let dateTextObj = null;
-  let bgImage = null;
-  
-  // تحميل الصورة
-  fabric.Image.fromURL(settings.image, function(img) {
-    bgImage = img;
-    canvas.setWidth(img.width);
-    canvas.setHeight(img.height);
-    canvas.add(img);
-    img.sendToBack();
+};
+
+// تحديد الجنس من عنوان الصفحة
+const currentGender = window.location.pathname.includes('female.html') ? 'female' : 'male';
+const settings = GENDER_SETTINGS[currentGender];
+
+// إعدادات النص
+const TOP_TEXT_COLOR = settings.textColor;
+const DATE_SETTINGS = {
+    fontSize: 72,
+    color: settings.dateColor,
+    position: 0.89
+};
+
+// بيانات التطبيق
+let topText = '';
+let imageWidth, imageHeight;
+let currentFontSize = 88;
+
+// تحميل الصورة المناسبة
+image.src = settings.image;
+image.crossOrigin = "Anonymous"; // للتأكد من عدم وجود مشاكل CORS
+
+// عناصر التحكم
+const hueSlider = document.getElementById('hue');
+const saturationSlider = document.getElementById('saturation');
+const textInput = document.getElementById('text-input');
+const textSizeSlider = document.getElementById('text-size');
+const clearTextsBtn = document.getElementById('clear-texts');
+const downloadBtn = document.getElementById('download');
+const resetBtn = document.getElementById('reset-all');
+
+// عناصر عرض القيم
+const hueValue = document.getElementById('hue-value');
+const saturationValue = document.getElementById('saturation-value');
+const textSizeValue = document.getElementById('text-size-value');
+
+// القيم الافتراضية
+const DEFAULT_VALUES = {
+    hue: 0,
+    saturation: 100,
+    textSize: 88,
+    text: ''
+};
+
+// دالة إعادة الرسم
+function redrawCanvas() {
+    if (!image.complete) return; // لا ترسم إذا لم يتم تحميل الصورة
     
-    // إضافة النص التاريخي
-    addDateText();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // إعادة رسم العناصر
-    canvas.renderAll();
-  });
-  
-  // إضافة النص التاريخي
-  function addDateText() {
+    // تطبيق الفلاتر على الصورة
+    ctx.filter = `
+        hue-rotate(${hueSlider.value}deg)
+        saturate(${saturationSlider.value}%)
+    `;
+    ctx.drawImage(image, 0, 0);
+    
+    // تحديث قيم العناصر المنزلقة
+    updateSliderValues();
+    
+    // تحديد المواضع الثابتة للنصوص
+    const centerX = imageWidth / 2;
+    const topTextY = imageHeight * 0.42;
+    const dateY = imageHeight * DATE_SETTINGS.position;
+    
+    // رسم النص العلوي إذا موجود
+    if (topText) {
+        ctx.font = `${currentFontSize}px name`;
+        ctx.fillStyle = TOP_TEXT_COLOR;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(topText, centerX, topTextY);
+    }
+    
+    // رسم التاريخ الثابت
     const today = new Date();
     const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
     const dateString = today.toLocaleDateString('EG', options);
     
-    dateTextObj = new fabric.Text(dateString, {
-      left: canvas.width / 2,
-      top: canvas.height * 0.89,
-      originX: 'center',
-      originY: 'center',
-      fontSize: 72,
-      fontFamily: 'date-font',
-      fill: settings.dateColor,
-      selectable: false
-    });
+    ctx.font = `${DATE_SETTINGS.fontSize}px date-font`;
+    ctx.fillStyle = DATE_SETTINGS.color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(dateString, centerX, dateY);
     
-    canvas.add(dateTextObj);
-  }
-  
-  // تحديث النص العلوي
-  function updateText() {
-    const textInput = document.getElementById('text-input');
-    const text = textInput.value;
-    
-    if (topTextObj) {
-      canvas.remove(topTextObj);
-    }
-    
-    if (text) {
-      topTextObj = new fabric.Text(text, {
-        left: canvas.width / 2,
-        top: canvas.height * 0.42,
-        originX: 'center',
-        originY: 'center',
-        fontSize: parseInt(document.getElementById('text-size').value),
-        fontFamily: 'name',
-        fill: settings.textColor,
-        selectable: false
-      });
-      
-      canvas.add(topTextObj);
-    }
-    
-    applyFilters();
-  }
-  
-  // تطبيق الفلاتر
-  function applyFilters() {
-    const hue = parseInt(document.getElementById('hue').value);
-    const saturation = parseInt(document.getElementById('saturation').value);
-    
-    bgImage.filters = [
-      new fabric.Image.filters.HueRotation({ rotation: hue / 360 }),
-      new fabric.Image.filters.Saturation({ saturation: saturation / 100 })
-    ];
-    
-    bgImage.applyFilters();
-    canvas.renderAll();
-  }
-  
-  // تحميل الصورة
-  function downloadImage() {
+    ctx.filter = 'none';
+}
+
+// تحديث قيم العناصر المنزلقة
+function updateSliderValues() {
+    hueValue.textContent = `${hueSlider.value}°`;
+    saturationValue.textContent = `${saturationSlider.value}%`;
+    textSizeValue.textContent = `${textSizeSlider.value}px`;
+}
+
+// تحديث النص فور الكتابة
+function updateText() {
+    topText = textInput.value;
+    redrawCanvas();
+}
+
+// مسح النصوص
+function clearTexts() {
+    textInput.value = '';
+    topText = '';
+    redrawCanvas();
+}
+
+// تغيير حجم النص
+function updateTextSize() {
+    currentFontSize = parseInt(textSizeSlider.value);
+    redrawCanvas();
+}
+
+// تحميل الصورة
+function downloadImage() {
+    const fileName = topText ? `ميلاد ${topText}.png` : `صورة-مع-نص-${new Date().getTime()}.png`;
     const link = document.createElement('a');
-    const textInput = document.getElementById('text-input');
-    const fileName = textInput.value ? `ميلاد ${textInput.value}.png` : `صورة-مع-نص-${new Date().getTime()}.png`;
-    
     link.download = fileName;
-    link.href = canvas.toDataURL({
-      format: 'png',
-      quality: 1
-    });
+    link.href = canvas.toDataURL('image/png');
     link.click();
-  }
-  
-  // إضافة Event Listeners
-  document.getElementById('hue').addEventListener('input', applyFilters);
-  document.getElementById('saturation').addEventListener('input', applyFilters);
-  document.getElementById('text-input').addEventListener('input', updateText);
-  document.getElementById('text-size').addEventListener('input', updateText);
-  document.getElementById('clear-texts').addEventListener('click', function() {
-    document.getElementById('text-input').value = '';
-    updateText();
-  });
-  document.getElementById('download').addEventListener('click', downloadImage);
-  document.getElementById('reset-all').addEventListener('click', function() {
-    document.getElementById('hue').value = 0;
-    document.getElementById('saturation').value = 100;
-    document.getElementById('text-input').value = '';
-    document.getElementById('text-size').value = 88;
-    applyFilters();
-    updateText();
-  });
-  document.getElementById('back-btn')?.addEventListener('click', () => {
+}
+
+// إعادة تعيين جميع الإعدادات
+function resetAllSettings() {
+    hueSlider.value = DEFAULT_VALUES.hue;
+    saturationSlider.value = DEFAULT_VALUES.saturation;
+    textSizeSlider.value = DEFAULT_VALUES.textSize;
+    textInput.value = DEFAULT_VALUES.text;
+    topText = DEFAULT_VALUES.text;
+    currentFontSize = DEFAULT_VALUES.textSize;
+    redrawCanvas();
+}
+
+// تحميل الصورة والخطوط
+function initializeApp() {
+    image.onload = function() {
+        canvas.width = image.width;
+        canvas.height = image.height;
+        imageWidth = image.width;
+        imageHeight = image.height;
+        
+        document.fonts.ready.then(() => {
+            redrawCanvas();
+        });
+    };
+    
+    // استدعاء احتياطي في حال اكتمال تحميل الصورة مسبقاً
+    if (image.complete) {
+        canvas.width = image.width;
+        canvas.height = image.height;
+        imageWidth = image.width;
+        imageHeight = image.height;
+        document.fonts.ready.then(() => {
+            redrawCanvas();
+        });
+    }
+}
+
+// إضافة Event Listeners
+[hueSlider, saturationSlider].forEach(control => {
+    control.addEventListener('input', redrawCanvas);
+});
+
+// زر العودة للخلف
+document.getElementById('back-btn')?.addEventListener('click', () => {
     location.href = 'index.html';
-  });
-  
-  // تحديث قيم العناصر المنزلقة
-  function updateSliderValues() {
-    document.getElementById('hue-value').textContent = `${document.getElementById('hue').value}°`;
-    document.getElementById('saturation-value').textContent = `${document.getElementById('saturation').value}%`;
-    document.getElementById('text-size-value').textContent = `${document.getElementById('text-size').value}px`;
-  }
-  
-  // تحديث القيم عند التغيير
-  [hueSlider, saturationSlider, textSizeSlider].forEach(slider => {
-    slider.addEventListener('input', updateSliderValues);
-  });
+});
+
+textInput.addEventListener('input', updateText);
+textSizeSlider.addEventListener('input', updateTextSize);
+clearTextsBtn.addEventListener('click', clearTexts);
+downloadBtn.addEventListener('click', downloadImage);
+resetBtn.addEventListener('click', resetAllSettings);
+
+// تهيئة التطبيق عند تحميل الصفحة
+window.addEventListener('DOMContentLoaded', initializeApp);
