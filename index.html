@@ -27,6 +27,7 @@
             justify-content: center;
             gap: 30px;
             margin-top: 40px;
+            flex-wrap: wrap;
         }
         
         .gender-btn {
@@ -62,12 +63,22 @@
         .gender-icon {
             font-size: 2.5rem;
         }
+
+        @media (max-width: 600px) {
+            .gender-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .gender-btn {
+                width: 80%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="gender-selection">
         <h1>فوتوشوب أدِيب🎨</h1>
-        <!-- <p>الرجاء اختيار جنسك للحصول على تجربة مخصصة:</p> -->
         
         <div class="gender-options">
             <button class="gender-btn male-btn" onclick="location.href='male.html'">

@@ -9,4 +9,15 @@
     --panel-bg: rgba(255, 255, 255, 0.9);
 }
 
-/* يمكن إضافة المزيد من التخصيصات للذكور هنا */
+/* تخصيصات إضافية للذكور */
+.canvas-container {
+    border-color: rgba(74, 111, 165, 0.3);
+}
+
+.canvas-container:hover {
+    border-color: rgba(74, 111, 165, 0.6);
+}
+
+.panel {
+    background: rgba(240, 247, 255, 0.7);
+}
