@@ -8,16 +8,3 @@
     --background: linear-gradient(135deg, #fff0f5 0%, #ffd6e4 100%);
     --panel-bg: rgba(255, 255, 255, 0.9);
 }
-
-/* تخصيصات إضافية للإناث */
-.canvas-container {
-    border-color: rgba(212, 93, 121, 0.3);
-}
-
-.canvas-container:hover {
-    border-color: rgba(212, 93, 121, 0.6);
-}
-
-.panel {
-    background: rgba(255, 240, 245, 0.7);
-}
