@@ -6,6 +6,7 @@
     <title>فوتوشوب أدِيب🎨</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="female-style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/camanjs/4.1.2/caman.full.min.js"></script>
     
     
 </head>
@@ -26,8 +27,16 @@
                     <div class="slider-value" id="hue-value">0°</div>
                     
                     <label for="saturation">التشبع (Saturation)</label>
-                    <input type="range" id="saturation" min="0" max="200" value="100">
+                    <input type="range" id="saturation" min="0" max="200" value="0">
                     <div class="slider-value" id="saturation-value">100%</div>
+
+                    <label for="brightness">السطوع (Brightness)</label>
+                    <input type="range" id="brightness" min="-100" max="100" value="0">
+                    <div class="slider-value" id="brightness-value">0</div>
+
+                    <label for="contrast">التباين (Contrast)</label>
+                    <input type="range" id="contrast" min="-100" max="100" value="0">
+                    <div class="slider-value" id="contrast-value">0</div>
                 </div>
                 
                 <div class="panel">
@@ -52,6 +61,8 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.2/tinycolor.min.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>

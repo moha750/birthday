@@ -22,10 +22,8 @@ const currentGender = window.location.pathname.includes('female.html') ? 'female
 const settings = GENDER_SETTINGS[currentGender];
 
 // إعدادات النص
-const TOP_TEXT_COLOR = settings.textColor;
 const DATE_SETTINGS = {
     fontSize: 72,
-    color: settings.dateColor,
     position: 0.89
 };
 
@@ -33,6 +31,7 @@ const DATE_SETTINGS = {
 let topText = '';
 let imageWidth, imageHeight;
 let currentFontSize = 88;
+let camanInstance = null;
 
 // تحميل الصورة المناسبة
 image.src = settings.image;
@@ -41,6 +40,8 @@ image.crossOrigin = "Anonymous"; // للتأكد من عدم وجود مشاكل
 // عناصر التحكم
 const hueSlider = document.getElementById('hue');
 const saturationSlider = document.getElementById('saturation');
+const brightnessSlider = document.getElementById('brightness');
+const contrastSlider = document.getElementById('contrast');
 const textInput = document.getElementById('text-input');
 const textSizeSlider = document.getElementById('text-size');
 const clearTextsBtn = document.getElementById('clear-texts');
@@ -50,64 +51,77 @@ const resetBtn = document.getElementById('reset-all');
 // عناصر عرض القيم
 const hueValue = document.getElementById('hue-value');
 const saturationValue = document.getElementById('saturation-value');
+const brightnessValue = document.getElementById('brightness-value');
+const contrastValue = document.getElementById('contrast-value');
 const textSizeValue = document.getElementById('text-size-value');
 
 // القيم الافتراضية
 const DEFAULT_VALUES = {
     hue: 0,
-    saturation: 100,
+    saturation: 0,
+    brightness: 0,
+    contrast: 0,
     textSize: 88,
     text: ''
 };
 
 // دالة إعادة الرسم
 function redrawCanvas() {
-    if (!image.complete) return; // لا ترسم إذا لم يتم تحميل الصورة
+    if (!image.complete) return;
     
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = imageWidth;
+    tempCanvas.height = imageHeight;
+    const tempCtx = tempCanvas.getContext('2d');
     
-    // تطبيق الفلاتر على الصورة
-    ctx.filter = `
-        hue-rotate(${hueSlider.value}deg)
-        saturate(${saturationSlider.value}%)
-    `;
-    ctx.drawImage(image, 0, 0);
+    // رسم الصورة الأصلية أولاً
+    tempCtx.drawImage(image, 0, 0);
     
-    // تحديث قيم العناصر المنزلقة
-    updateSliderValues();
-    
-    // تحديد المواضع الثابتة للنصوص
+    // رسم النص على canvas مؤقت
     const centerX = imageWidth / 2;
     const topTextY = imageHeight * 0.42;
     const dateY = imageHeight * DATE_SETTINGS.position;
     
-    // رسم النص العلوي إذا موجود
     if (topText) {
-        ctx.font = `${currentFontSize}px name`;
-        ctx.fillStyle = TOP_TEXT_COLOR;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(topText, centerX, topTextY);
+        tempCtx.font = `${currentFontSize}px name`;
+        tempCtx.fillStyle = settings.textColor; // اللون الأساسي من الإعدادات
+        tempCtx.textAlign = "center";
+        tempCtx.textBaseline = "middle";
+        tempCtx.fillText(topText, centerX, topTextY);
     }
     
-    // رسم التاريخ الثابت
     const today = new Date();
     const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
     const dateString = today.toLocaleDateString('EG', options);
     
-    ctx.font = `${DATE_SETTINGS.fontSize}px date-font`;
-    ctx.fillStyle = DATE_SETTINGS.color;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(dateString, centerX, dateY);
+    tempCtx.font = `${DATE_SETTINGS.fontSize}px date-font`;
+    tempCtx.fillStyle = settings.dateColor; // اللون الأساسي من الإعدادات
+    tempCtx.textAlign = "center";
+    tempCtx.textBaseline = "middle";
+    tempCtx.fillText(dateString, centerX, dateY);
     
-    ctx.filter = 'none';
+    // تطبيق تأثيرات CamanJS على كل شيء (الصورة + النص)
+    Caman(tempCanvas, function() {
+        this.revert(false);
+        this.hue(parseInt(hueSlider.value));
+        this.saturation(parseInt(saturationSlider.value));
+        this.brightness(parseInt(brightnessSlider.value));
+        this.contrast(parseInt(contrastSlider.value));
+        
+        this.render(function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(tempCanvas, 0, 0);
+            updateSliderValues();
+        });
+    });
 }
 
 // تحديث قيم العناصر المنزلقة
 function updateSliderValues() {
     hueValue.textContent = `${hueSlider.value}°`;
     saturationValue.textContent = `${saturationSlider.value}%`;
+    brightnessValue.textContent = `${brightnessSlider.value}`;
+    contrastValue.textContent = `${contrastSlider.value}`;
     textSizeValue.textContent = `${textSizeSlider.value}px`;
 }
 
@@ -143,6 +157,8 @@ function downloadImage() {
 function resetAllSettings() {
     hueSlider.value = DEFAULT_VALUES.hue;
     saturationSlider.value = DEFAULT_VALUES.saturation;
+    brightnessSlider.value = DEFAULT_VALUES.brightness;
+    contrastSlider.value = DEFAULT_VALUES.contrast;
     textSizeSlider.value = DEFAULT_VALUES.textSize;
     textInput.value = DEFAULT_VALUES.text;
     topText = DEFAULT_VALUES.text;
@@ -176,7 +192,7 @@ function initializeApp() {
 }
 
 // إضافة Event Listeners
-[hueSlider, saturationSlider].forEach(control => {
+[hueSlider, saturationSlider, brightnessSlider, contrastSlider].forEach(control => {
     control.addEventListener('input', redrawCanvas);
 });
 
