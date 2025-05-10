@@ -31,7 +31,8 @@ const DATE_SETTINGS = {
 let topText = '';
 let imageWidth, imageHeight;
 let currentFontSize = 88;
-let camanInstance = null;
+let fxCanvas = null;
+let texture = null;
 
 // تحميل الصورة المناسبة
 image.src = settings.image;
@@ -65,9 +66,25 @@ const DEFAULT_VALUES = {
     text: ''
 };
 
+// تهيئة glfx.js
+function initFX() {
+    if (typeof fx === 'undefined') {
+        alert("⚠️ المكتبة المطلوبة لم تُحمَّل. يرجى:\n1. التحقق من اتصال الإنترنت\n2. إعادة تحميل الصفحة");
+        return false;
+    }
+    
+    try {
+        fxCanvas = fx.canvas();
+        return true;
+    } catch (e) {
+        alert("❌ خطأ في تهيئة المؤثرات: " + e.message);
+        return false;
+    }
+}
+
 // دالة إعادة الرسم
 function redrawCanvas() {
-    if (!image.complete) return;
+    if (!image.complete || !fxCanvas) return;
     
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = imageWidth;
@@ -84,36 +101,41 @@ function redrawCanvas() {
     
     if (topText) {
         tempCtx.font = `${currentFontSize}px name`;
-        tempCtx.fillStyle = settings.textColor; // اللون الأساسي من الإعدادات
+        tempCtx.fillStyle = settings.textColor;
         tempCtx.textAlign = "center";
         tempCtx.textBaseline = "middle";
         tempCtx.fillText(topText, centerX, topTextY);
     }
     
     const today = new Date();
-    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-    const dateString = today.toLocaleDateString('EG', options);
+    const day = today.getDate();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+    const dateString = `${year}/${day}/${month}`;
     
     tempCtx.font = `${DATE_SETTINGS.fontSize}px date-font`;
-    tempCtx.fillStyle = settings.dateColor; // اللون الأساسي من الإعدادات
+    tempCtx.fillStyle = settings.dateColor;
     tempCtx.textAlign = "center";
     tempCtx.textBaseline = "middle";
     tempCtx.fillText(dateString, centerX, dateY);
     
-    // تطبيق تأثيرات CamanJS على كل شيء (الصورة + النص)
-    Caman(tempCanvas, function() {
-        this.revert(false);
-        this.hue(parseInt(hueSlider.value));
-        this.saturation(parseInt(saturationSlider.value));
-        this.brightness(parseInt(brightnessSlider.value));
-        this.contrast(parseInt(contrastSlider.value));
-        
-        this.render(function() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(tempCanvas, 0, 0);
-            updateSliderValues();
-        });
-    });
+    // تطبيق تأثيرات glfx.js
+    texture = fxCanvas.texture(tempCanvas);
+    fxCanvas.draw(texture)
+        .hueSaturation(
+            parseInt(hueSlider.value)/360, 
+            parseInt(saturationSlider.value)/100
+        )
+        .brightnessContrast(
+            parseInt(brightnessSlider.value)/100,
+            parseInt(contrastSlider.value)/100
+        )
+        .update();
+    
+    // رسم النتيجة على canvas الرئيسي
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(fxCanvas, 0, 0);
+    updateSliderValues();
 }
 
 // تحديث قيم العناصر المنزلقة
@@ -168,6 +190,11 @@ function resetAllSettings() {
 
 // تحميل الصورة والخطوط
 function initializeApp() {
+    if (!initFX()) {
+        alert('لا يمكن تشغيل التطبيق بدون مكتبة glfx.js');
+        return;
+    }
+    
     image.onload = function() {
         canvas.width = image.width;
         canvas.height = image.height;
