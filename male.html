@@ -26,8 +26,16 @@
                     <div class="slider-value" id="hue-value">0°</div>
                     
                     <label for="saturation">التشبع (Saturation)</label>
-                    <input type="range" id="saturation" min="0" max="200" value="100">
+                    <input type="range" id="saturation" min="0" max="200" value="0">
                     <div class="slider-value" id="saturation-value">100%</div>
+
+                    <label for="brightness">السطوع (Brightness)</label>
+                    <input type="range" id="brightness" min="-100" max="100" value="0">
+                    <div class="slider-value" id="brightness-value">0</div>
+
+                    <label for="contrast">التباين (Contrast)</label>
+                    <input type="range" id="contrast" min="-100" max="100" value="0">
+                    <div class="slider-value" id="contrast-value">0</div>
                 </div>
                 
                 <div class="panel">
@@ -40,14 +48,15 @@
                     <div class="slider-value" id="text-size-value">88px</div>
                     
                     <div class="text-controls">
-                        <button id="clear-texts" class="secondary-btn">🗑️ مسح النص</button>
+                        <button id="clear-texts" class="secondary-btn">مسح النص🗑️</button>
                     </div>
                 </div>
                 
                 <div class="action-buttons">
-                    <button id="download" class="primary-btn">💾 حفظ الصورة</button>
-                    <button id="reset-all" class="reset-btn">🔄 إعادة تعيين</button>
-                    <button id="back-btn" class="secondary-btn">↩ العودة</button>                </div>
+                    <button id="download" class="primary-btn">حفظ الصورة💾</button>
+                    <button id="reset-all" class="reset-btn">إعادة تعيين🔄</button>
+                    <button id="back-btn" class="secondary-btn">العودة↩</button>                
+                </div>
             </div>
         </div>
     </div>
